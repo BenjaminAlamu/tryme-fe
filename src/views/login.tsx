@@ -1,17 +1,48 @@
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import InputComponent from '../components/InputComponent';
+import ButtonComponent from '../components/ButtonComponent';
+import { NavLink } from 'react-router-dom';
+import { useMutation } from 'react-query';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../utils/api';
+import { toast } from 'react-toastify';
 
 import { loginUser } from '../types';
 
-const Login = props => {
+const Login = () => {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const {
+    setValue,
     register,
     handleSubmit,
     formState: { errors }
   } = useForm();
-  const onSubmit = (data: any) => {
-    console.log({ data });
+  const onSubmit = (data: loginUser) => {
+    mutate(payload);
+  };
+
+  const { mutate } = useMutation((payload: loginUser) => loginUser(payload), {
+    onError: error => {
+      toast.error(error.response.data.message);
+      setLoading(false);
+    },
+    onSuccess: res => {
+      toast.success('Login Successful');
+      localStorage.setItem('try-me-token', res.data.data.token);
+      navigate('/list');
+      setLoading(false);
+    }
+  });
+
+  const loginUser = async data => {
+    try {
+      setLoading(true);
+      return api.post('/user/login', data);
+    } catch (e) {
+      return e;
+    }
   };
 
   const [payload, setPayload] = useState<loginUser>({
@@ -25,6 +56,7 @@ const Login = props => {
       ...prev,
       [name]: value
     }));
+    setValue(name, value);
   };
 
   return (
@@ -60,6 +92,7 @@ const Login = props => {
               id="password"
               value={payload.password}
               name="password"
+              type="password"
               labelText="Password"
               register={register}
               placeholder="e.g *****"
@@ -72,8 +105,15 @@ const Login = props => {
             />
           </section>
 
+          <p className="text-right">
+            Don't have an account?{' '}
+            <NavLink className="text-blue-400 text-underline" to="/register">
+              Create one
+            </NavLink>
+          </p>
+
           <main className="w-full py-4">
-            <ButtonComponent text="Proceed" />
+            <ButtonComponent isDisabled={loading} isLoading={loading} text="Proceed" />
           </main>
         </form>
       </main>

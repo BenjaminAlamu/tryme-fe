@@ -2,16 +2,44 @@ import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import InputComponent from '../components/InputComponent';
 import ButtonComponent from '../components/ButtonComponent';
+import { NavLink } from 'react-router-dom';
+import { useMutation } from 'react-query';
+import { useNavigate } from 'react-router-dom';
 import { newUser } from '../types';
+import { api } from '../utils/api';
+import { toast } from 'react-toastify';
 
 const Signup = props => {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors }
   } = useForm();
-  const onSubmit = (data: any) => {
-    console.log({ data });
+  const onSubmit = (data: newUser) => {
+    mutate(payload);
+  };
+
+  const { mutate } = useMutation((payload: newUser) => loginUser(payload), {
+    onError: error => {
+      toast.error(error.response.data.message);
+      setLoading(false);
+    },
+    onSuccess: () => {
+      toast.success('Registration Successful');
+      navigate('/list');
+      setLoading(false);
+    }
+  });
+
+  const loginUser = async data => {
+    try {
+      setLoading(true);
+      return api.post('/user/register', data);
+    } catch (e) {
+      return e;
+    }
   };
 
   const [payload, setPayload] = useState<newUser>({
@@ -78,6 +106,7 @@ const Signup = props => {
               id="password"
               value={payload.password}
               name="password"
+              type="password"
               labelText="Password"
               register={register}
               placeholder="e.g *****"
@@ -90,8 +119,15 @@ const Signup = props => {
             />
           </section>
 
+          <p className="text-right">
+            Already have an account?{' '}
+            <NavLink className="text-blue-400 text-underline" to="/">
+              Login
+            </NavLink>
+          </p>
+
           <main className="w-full py-4">
-            <ButtonComponent text="Continue" />
+            <ButtonComponent isDisabled={loading} isLoading={loading} text="Continue" />
           </main>
         </form>
       </main>
