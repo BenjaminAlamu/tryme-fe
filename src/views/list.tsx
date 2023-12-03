@@ -7,30 +7,50 @@ import CreateEditTask from '../components/CreateEditTask';
 import { useMutation, useQueries, useQuery } from 'react-query';
 import { api } from '../utils/api';
 import { useState, useEffect } from 'react';
+import { filterType, taskType, paginationInfoType } from '../types';
+import ResponsivePagination from 'react-responsive-pagination';
+import 'react-responsive-pagination/themes/classic.css';
 
-const List = props => {
+const List = () => {
   const [list, setList] = useState([]);
-  const [filters, setFilters] = useState({
+  const [paginationInfo, setPaginationInfo] = useState<paginationInfoType | object>({});
+  const [filters, setFilters] = useState<filterType>({
     status: undefined,
-    priority: undefined
+    priority: undefined,
+    page: 0
   });
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const [isEditingTask, setIsEditing] = useState(false);
-  const [activeTask, setActiveTask] = useState({
+  const [modalIsOpen, setIsOpen] = useState<boolean>(false);
+  const [isEditingTask, setIsEditing] = useState<boolean>(false);
+  const [activeTask, setActiveTask] = useState<taskType>({
     title: '',
     dueDate: '',
     priority: ''
   });
 
-  const handleChange = (e: any) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEventHandler<HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFilters(prev => ({
       ...prev,
       [name]: value
     }));
+    setTimeout(() => {
+      fetchAllTasks();
+    }, 500);
   };
 
-  const closeModal = (e: any) => {
+  const handlePaginationCheck = (value: number) => {
+    setFilters(prev => ({
+      ...prev,
+      page: value
+    }));
+    setTimeout(() => {
+      fetchAllTasks();
+    }, 500);
+  };
+
+  const closeModal = () => {
     setIsOpen(false);
     setActiveTask({
       title: '',
@@ -40,7 +60,7 @@ const List = props => {
     setIsEditing(false);
   };
 
-  const handleEdit = (task: any) => {
+  const handleEdit = (task: taskType) => {
     setIsEditing(true);
     setActiveTask(task);
     setIsOpen(true);
@@ -57,10 +77,14 @@ const List = props => {
     return fil;
   };
 
-  const { isLoading, refetch: fetchAllTasks } = useQuery('fetchTasks', () => {
+  const { isFetching, refetch: fetchAllTasks } = useQuery('fetchTasks', () => {
     const fil = generateFilter();
     api.get(`/task?${fil}`).then(res => {
-      setList(res.data.data.tasks);
+      setList(res.data.data.data);
+      setPaginationInfo({
+        ...res.data.data.pagination,
+        current_page: res.data.data.pagination.current_page + 1
+      });
     });
   });
   return (
@@ -110,11 +134,11 @@ const List = props => {
           />
         </main>
         <>
-          {isLoading && <Loader />}
-          {!isLoading && list.length < 1 && <EmptyState />}
+          {isFetching && <Loader />}
+          {!isFetching && list.length < 1 && <EmptyState />}
         </>
         <main className="flex flex-wrap ">
-          {!isLoading &&
+          {!isFetching &&
             list.length &&
             list.map(function (data) {
               return (
@@ -129,6 +153,13 @@ const List = props => {
               );
             })}
         </main>
+        <ResponsivePagination
+          current={paginationInfo.current_page}
+          total={paginationInfo.total_pages}
+          onPageChange={e => {
+            handlePaginationCheck(e - 1);
+          }}
+        />
       </div>
     </>
   );
