@@ -6,27 +6,53 @@ type SelectProps = {
   name?: string;
   className?: string;
   value?: string;
+  id: string;
+  register?: any;
   type?: string;
+  labelText?: string;
+  validation: object;
   onChange?: ChangeEventHandler<HTMLSelectElement>;
 };
 
 const Select = (props: SelectProps) => {
-  const { placeholder, name, options, className, value, onChange } = props;
+  const {
+    placeholder,
+    name,
+    options,
+    className,
+    value,
+    onChange,
+    labelText,
+    id,
+    register,
+    validation
+  } = props;
   return (
-    <select
-      onChange={onChange}
-      value={value}
-      name={name}
-      className={`${className} border border-gray-300 text-gray-600 rounded-lg shadow-sm`}
-    >
-      <option>{placeholder}</option>
-      {options.map((option: any) => (
-        <option key={option.id} value={option.id}>
-          {option.name}
-        </option>
-      ))}
-    </select>
+    <div>
+      <label className="block">{labelText}</label>
+      <select
+        onChange={onChange}
+        name={name}
+        id={id}
+        value={value}
+        className={`${className} border border-gray-300 text-gray-600 rounded-lg shadow-sm p-2`}
+      >
+        <option>{placeholder}</option>
+        {options.map((option: any) => (
+          <option key={option.id} value={option.id}>
+            {option.name}
+          </option>
+        ))}
+      </select>
+    </div>
   );
+};
+
+Select.defaultProps = {
+  error: null,
+  errorMessage: '',
+  validation: {},
+  register: () => {}
 };
 
 export default Select;
