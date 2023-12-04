@@ -10,7 +10,7 @@ interface textAreaType {
   handleChange: handleChange;
   value: string;
   id: string;
-  register: any;
+  register: (id: string, validation: object) => void;
   error?: boolean | undefined;
   errorMessage?: string;
   type?: string;

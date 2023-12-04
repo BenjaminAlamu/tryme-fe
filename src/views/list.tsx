@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import { filterType, taskType, paginationInfoType } from '../types';
 import ResponsivePagination from 'react-responsive-pagination';
 import 'react-responsive-pagination/themes/classic.css';
+import InputComponent from '../components/InputComponent';
 
 const List = () => {
   const [list, setList] = useState([]);
@@ -17,7 +18,8 @@ const List = () => {
   const [filters, setFilters] = useState<filterType>({
     status: undefined,
     priority: undefined,
-    page: 0
+    page: 0,
+    search: ''
   });
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
   const [isEditingTask, setIsEditing] = useState<boolean>(false);
@@ -96,42 +98,60 @@ const List = () => {
         handleClose={closeModal}
         isEditing={isEditingTask}
       />
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4">
         <main className="flex w-full justify-between items-center">
           <section>
-            <p>Holla</p>
+            <p>Holla 👋</p>
             <p>Here are all your tasks</p>
           </section>
           <ButtonComponent className="!w-auto" onClick={() => setIsOpen(true)} text="Add task" />
         </main>
 
-        <main className="flex w-full gap-x-2 justify-end items-center my-2">
-          <span>Filter by:</span>
-          <SelectComponent
-            name="status"
-            id="status"
-            onChange={handleChange}
-            placeholder="Select Status"
-            className=" h-10"
-            options={[
-              { name: 'Pending', id: 'pending' },
-              { name: 'Inprogress', id: 'in-progress' },
-              { name: 'Completed', id: 'completed' }
-            ]}
-          />
+        <main className="flex flex-wrap w-full gap-x-2 justify-between items-center my-2">
+          <main>
+            <span>Search</span>
+            <InputComponent
+              id="search"
+              value={filters.search}
+              name="search"
+              type="text"
+              labelText=""
+              register={() => {}}
+              placeholder="e.g *****"
+              handleChange={handleChange}
+            />
+          </main>
 
-          <SelectComponent
-            name="priority"
-            id="priority"
-            onChange={handleChange}
-            placeholder="Select Priority"
-            className=" h-10"
-            options={[
-              { name: 'Low', id: 'low' },
-              { name: 'Medium', id: 'medium' },
-              { name: 'High', id: 'high' }
-            ]}
-          />
+          <main className="flex items-center gap-x-2 my-2 md:my-0">
+            <span className="hidden md:inline">Filter by:</span>
+            <main className="flex gap-x-2">
+              <SelectComponent
+                name="status"
+                id="status"
+                onChange={handleChange}
+                placeholder="Select Status"
+                className=" h-10"
+                options={[
+                  { name: 'Pending', id: 'pending' },
+                  { name: 'Inprogress', id: 'in-progress' },
+                  { name: 'Completed', id: 'completed' }
+                ]}
+              />
+
+              <SelectComponent
+                name="priority"
+                id="priority"
+                onChange={handleChange}
+                placeholder="Select Priority"
+                className=" h-10"
+                options={[
+                  { name: 'Low', id: 'low' },
+                  { name: 'Medium', id: 'medium' },
+                  { name: 'High', id: 'high' }
+                ]}
+              />
+            </main>
+          </main>
         </main>
         <>
           {isFetching && <Loader />}
@@ -148,6 +168,7 @@ const List = () => {
                       handleEdit(e);
                     }}
                     task={data}
+                    refectchData={fetchAllTasks}
                   />
                 </section>
               );

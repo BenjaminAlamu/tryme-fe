@@ -7,7 +7,7 @@ type SelectProps = {
   className?: string;
   value?: string;
   id: string;
-  register?: any;
+  register: (id: string, validation: object) => void;
   type?: string;
   labelText?: string;
   validation: object;

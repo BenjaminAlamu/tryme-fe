@@ -13,6 +13,7 @@ export type filterType = {
   status: string | undefined;
   priority: string | undefined;
   page: number;
+  search: string;
 };
 
 export type taskType = {

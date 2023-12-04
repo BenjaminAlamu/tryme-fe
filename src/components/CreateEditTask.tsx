@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Modal from 'react-modal';
 import InputComponent from '../components/InputComponent';
 import SelectComponent from '../components/SelectComponent';
@@ -16,7 +16,7 @@ type TaskCardProp = {
   isEditing: boolean;
   className?: string;
   handleClose?: any;
-  refectchData: any;
+  refectchData: () => void;
 };
 
 const customStyles = {
